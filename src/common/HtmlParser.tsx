@@ -3,6 +3,7 @@ import { Image, StyleSheet, View, Text } from 'react-native';
 import HTMLView, { HTMLViewNode } from 'react-native-htmlview';
 import { isSmallDevice, SPACING, WINDOW_WIDTH } from '../utils/device';
 import { theme } from "../utils";
+import WebView from 'react-native-webview';
 
 interface Props {
   text: string | undefined;
