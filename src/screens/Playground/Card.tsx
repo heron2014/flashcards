@@ -1,10 +1,11 @@
 import React, { FC, useRef } from 'react';
 import { View, StyleSheet, Animated, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { WINDOW_WIDTH } from '../../utils/device';
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/device';
 import { Card } from '../../redux/decks/reducer';
 import { Screens } from '../../navigation/types';
 import { HtmlParser, IconButton } from '../../common';
+import WebView from "react-native-webview";
 
 const ITEM_SIZE = WINDOW_WIDTH * 0.9;
 
@@ -54,6 +55,9 @@ const CardItem: FC<Props> = ({ card, title, deckId }) => {
       ? navigation.navigate(Screens.QUESTION_MODAL, { title, deckId, cardId: card.id })
       : navigation.navigate(Screens.ANSWER_MODAL, { title, deckId, cardId: card.id });
 
+
+  const contentCSSText = `font-size: 16px; min-height: ${WINDOW_HEIGHT - 220}px; height: 100%;`; // initial valid
+
   return (
     <>
       <View style={styles.editButton}>
@@ -64,7 +68,15 @@ const CardItem: FC<Props> = ({ card, title, deckId }) => {
           <TouchableWithoutFeedback onPress={flipCard}>
             <View>
               <Animated.View style={[styles.card, { transform: [{ rotateY: frontInterpolate }] }]}>
-                <HtmlParser text={card.question} />
+                <WebView
+                  style={{ width: 300, padding: 10 }}
+                  originWhitelist={['*']}
+                  source={{ html: `<html>
+    <head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body>${card.question}</body></html>` || '' }}
+                  automaticallyAdjustContentInsets
+                  scalesPageToFit
+                />
               </Animated.View>
               <Animated.View
                 style={[styles.card, styles.cardBack, { transform: [{ rotateY: backInterpolate }] }]}>
