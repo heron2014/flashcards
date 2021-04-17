@@ -2,8 +2,8 @@ import React, { FC, useRef } from 'react';
 import { View, StyleSheet, Animated, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { WINDOW_WIDTH } from '../../utils/device';
-import { Card } from '../../redux/reducer';
-import { Screens } from '../../navigation/interface';
+import { Card } from '../../redux/decks/reducer';
+import { Screens } from '../../navigation/types';
 import { HtmlParser, IconButton } from '../../common';
 
 const ITEM_SIZE = WINDOW_WIDTH * 0.9;

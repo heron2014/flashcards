@@ -1,19 +1,23 @@
 import React, { FC, useEffect, useRef } from 'react';
-import { Animated, StyleSheet, FlatList, View } from 'react-native';
+import { Animated, StyleSheet, FlatList, View, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Screens } from '../../../navigation/interface';
-import { Card } from '../../../redux/reducer';
-import { getPlatformDimension, isIOS, isSmallDevice, WINDOW_HEIGHT } from '../../../utils/device';
+import { Screens } from '../../../navigation/types';
+import { Card } from '../../../redux/decks/reducer';
+import { isIOS, WINDOW_HEIGHT } from '../../../utils/device';
 import { useDispatch } from 'react-redux';
 import { NativeAlert } from '../../../common';
-import { deleteCard } from '../../../redux/actions';
+import { deleteCard } from '../../../redux/decks/actions';
 import CardItem from './CardItem';
 import { theme } from '../../../utils';
 
 export interface Props {
   cards: Card[];
   deckId: string;
+  isOwner: boolean;
+  handlerRefreshSharedDeck: () => void;
+  isLoading: boolean;
 }
+
 const TOP_HEADER_HEIGHT = WINDOW_HEIGHT * 0.3;
 const numberColumns = 2;
 
@@ -28,20 +32,10 @@ const formatData = (cards: Card[], numColumns: number) => {
   return data;
 };
 
-const Cards: FC<Props> = ({ cards, deckId }) => {
-  const opacityVal = useRef(new Animated.Value(0)).current;
+const Cards: FC<Props> = ({ cards, deckId, isOwner, handlerRefreshSharedDeck, isLoading }) => {
   const yValue = useRef(new Animated.Value(WINDOW_HEIGHT)).current;
   const { navigate } = useNavigation();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    Animated.timing(opacityVal, {
-      useNativeDriver: true,
-      toValue: 1,
-      duration: isIOS ? 100 : 50,
-      delay: 0,
-    }).start();
-  }, [opacityVal]);
 
   useEffect(() => {
     Animated.timing(yValue, {
@@ -51,6 +45,18 @@ const Cards: FC<Props> = ({ cards, deckId }) => {
       delay: 0,
     }).start();
   }, [yValue]);
+
+  const renderRefreshControl = () => {
+    return (
+      <RefreshControl
+        title="Refreshing"
+        titleColor={theme.colors.border}
+        refreshing={isLoading}
+        onRefresh={handlerRefreshSharedDeck}
+        tintColor={theme.colors.border}
+      />
+    );
+  };
 
   const renderItem = ({ item }: { item: Card }) => {
     const handleDeleteCard = () => {
@@ -64,18 +70,15 @@ const Cards: FC<Props> = ({ cards, deckId }) => {
 
     return (
       <Animated.View
-        style={[
-          styles.item,
-          { backgroundColor: item.rank === 0 ? theme.colors.bad : theme.colors.icon },
-          { opacity: opacityVal },
-        ]}>
-        <CardItem onPress={handleNavigate} onLongPress={handleDeleteCard} card={item} />
+        style={[styles.item, { backgroundColor: item.rank === 0 ? theme.colors.bad : theme.colors.icon }]}>
+        <CardItem onPress={handleNavigate} onTrashPress={handleDeleteCard} card={item} isOwner={isOwner} />
       </Animated.View>
     );
   };
 
   return isIOS ? (
     <FlatList
+      refreshControl={renderRefreshControl()}
       showsVerticalScrollIndicator={false}
       numColumns={numberColumns}
       contentContainerStyle={styles.contentContainerStyle}
@@ -85,6 +88,7 @@ const Cards: FC<Props> = ({ cards, deckId }) => {
     />
   ) : (
     <Animated.FlatList
+      refreshControl={renderRefreshControl()}
       showsVerticalScrollIndicator={false}
       numColumns={numberColumns}
       contentContainerStyle={styles.contentContainerStyle}
@@ -99,7 +103,6 @@ const Cards: FC<Props> = ({ cards, deckId }) => {
 const styles = StyleSheet.create({
   contentContainerStyle: {
     paddingBottom: TOP_HEADER_HEIGHT + 60,
-    alignItems: 'center',
     marginTop: 10,
   },
   flatListStyle: {
@@ -113,19 +116,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   item: {
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 5,
-    margin: 5,
+    margin: 6,
     borderRadius: 8,
     ...theme.iconButtonShadow,
+    flex: 1,
+    flexDirection: 'row'
   },
   itemInvisible: {
     backgroundColor: 'transparent',
-    width: isSmallDevice() ? 150 : getPlatformDimension(170, 170, 190),
     borderWidth: 0,
     paddingHorizontal: 5,
-    paddingVertical: 10,
+    margin: 6,
+    flex: 1,
   },
 });
 

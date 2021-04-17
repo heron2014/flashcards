@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, StyleSheet, Animated, FlatList } from 'react-native';
 import { isIOS, WINDOW_WIDTH } from '../../utils/device';
 import CardItem from './Card';
-import { Card, Deck } from '../../redux/reducer';
+import { Card, Deck } from '../../redux/decks/reducer';
 import { useEffect, useRef } from 'react';
 
 const ITEM_SIZE = isIOS ? WINDOW_WIDTH * 0.85 : WINDOW_WIDTH * 0.74;
@@ -40,7 +40,9 @@ const Carousel = ({ deckDetail, deckId, cardId }: { deckDetail: Deck; deckId: st
         contentContainerStyle={{ alignItems: 'center' }}
         snapToInterval={ITEM_SIZE}
         snapToAlignment="start"
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false })}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+          useNativeDriver: false,
+        })}
         scrollEventThrottle={16}
         renderItem={({ item, index }: { item: Card; index: number }) => {
           if (item.id === 'empty-left' || item.id === 'empty-right') {

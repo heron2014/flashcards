@@ -4,11 +4,10 @@ import { useDispatch } from 'react-redux';
 import { SPACING } from '../../../utils/device';
 import { SharedElement } from 'react-navigation-shared-element';
 import IconButton from '../../../common/IconButton';
-import { saveDeck } from '../../../redux/actions';
+import { saveDeck } from '../../../redux/decks/actions';
 import assets from '../../../assets';
 import { theme } from '../../../utils';
-import { Bubble, TouchableScale } from '../../../common';
-import CustomText from '../../../common/CustomText';
+import { Bubble, TouchableScale, AppText } from '../../../common';
 
 // const colors = ['#fc9d9a', '#f9cdad', '#c8c8a9', '#83af9b', '#d6e1c7', '#94c7b6'];
 // const colors = ['#e1d1a6', '#fc9d9a', '#f9cdad', '#d6e1c7', '#94c7b6', '#c9e4d3', '#d9dbed'];
@@ -99,12 +98,12 @@ const DeckItem: FC<Props> = ({
         />
         <Image source={assets.icons.strokeBlack} resizeMode="contain" style={styles.stroke} />
         <View style={styles.bottom}>
-          <CustomText size="p">
+          <AppText size="p">
             {totalCards} {totalCards === 1 ? 'card' : 'cards'}
-          </CustomText>
-          <CustomText size="p">
+          </AppText>
+          <AppText size="p">
             {goodAnswers} / {totalCards}
-          </CustomText>
+          </AppText>
         </View>
       </Animated.View>
     </TouchableScale>

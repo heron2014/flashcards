@@ -27,6 +27,9 @@ const palette = {
   darkGray: '#2c2c2d',
   lightGray: '#d1d2d1',
   lightMidGray: '#d9dddc',
+  red: 'red',
+  warning: '#ff6666',
+  linkColor: '#FF3366',
 };
 
 const PLAYGROUND_OVERLAY_BUTTONS = {
@@ -77,6 +80,7 @@ const PLAYGROUND_OVERLAY_BUTTONS = {
 const theme = {
   colors: {
     success: palette.green,
+    error: palette.red,
     alert: palette.fadeYellow,
     good: palette.yellow,
     bad: palette.orange,
@@ -109,7 +113,10 @@ const theme = {
       freeDeck: palette.lightViolet,
       upgrade: palette.green,
       contact: palette.blue,
+      shop: palette.yellow,
     },
+    linkColor: palette.linkColor,
+    quoteBorder: palette.lightGray,
   },
   spacing: {
     s: 8,
@@ -139,7 +146,8 @@ const theme = {
   iconButtonShadow: {
     ...Platform.select({
       android: {
-        elevation: 10,
+        elevation: 4,
+        shadowColor: 'rgba(0,0,0, .4)',
       },
       default: {
         shadowColor: 'rgba(0,0,0, .4)',
@@ -152,7 +160,7 @@ const theme = {
   backgroundShadow: {
     ...Platform.select({
       android: {
-        elevation: 10,
+        elevation: 5,
       },
       ios: {
         shadowColor: '#000',

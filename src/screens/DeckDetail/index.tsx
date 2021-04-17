@@ -1,27 +1,27 @@
-import React, { FC } from 'react';
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import React, { FC, useEffect, useRef } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { SharedElement } from 'react-navigation-shared-element';
 import { useDispatch, useSelector } from 'react-redux';
 import { Animated, StyleSheet, View } from 'react-native';
-import { RootStackParamList, Screens } from '../../navigation/interface';
+import { DeckDetailScreenRouteProp, Screens } from '../../navigation/types';
 import Cards from './components/Cards';
 import { getPlatformDimension, isIOS, isSmallDevice, SPACING, WINDOW_HEIGHT } from '../../utils/device';
 import IconButton from '../../common/IconButton';
-import { CloseButton, Container, Title } from '../../common';
+import { CloseButton, Container, GeneralAlert, NoContentInfo, Title } from '../../common';
 import { selectBadAnswers, selectDeckItem, selectGoodAnswers } from '../../redux/seclectors';
-import { sortByRankCards, shuffleCards, saveSharedDeck } from '../../redux/actions';
+import { getDeckByShareId, shuffleCards, sortByRankCards } from '../../redux/decks/actions';
 import TopContent from './components/TopContent';
 import { theme } from '../../utils';
-import NoCardsText from './components/NoCardsText';
 import ActionButtons from './components/ActionButtons';
 import useOpacity from './useOpacity';
-import Api from '../../api';
-
-type DeckDetailScreenRouteProp = RouteProp<RootStackParamList, Screens.DECK_DETAIL>;
+import { RootState } from '../../redux/store';
+import { GeneralAlertRef, NotificationMessages } from '../../common/GeneralAlert';
+import { useIsMount } from "../../utils/useIsMount";
 
 const TOP_HEADER_HEIGHT = WINDOW_HEIGHT * 0.3;
 const TOP_HEADER_HEIGHT_SPACING = TOP_HEADER_HEIGHT - (isSmallDevice() ? 0 : 30);
 
+// Note: why there is a IOS and Android content? SharedElement wasn't working on Android, this is why it is handled differently - FIXME: upgrade react-navigation-shared-element
 export interface Props {
   route: DeckDetailScreenRouteProp;
 }
@@ -31,12 +31,27 @@ const DeckDetail: FC<Props> = ({
     params: { id, color },
   },
 }) => {
+  const isMount = useIsMount();
   const { opacityVal } = useOpacity();
   const dispatch = useDispatch();
   const { navigate, goBack } = useNavigation();
   const deckDetail = useSelector(selectDeckItem(id));
   const badAnswers = useSelector(selectBadAnswers(id));
   const goodAnswers = useSelector(selectGoodAnswers(id));
+  const { isLoading, error } = useSelector((state: RootState) => state.decks);
+
+  const alertRef = useRef<GeneralAlertRef>(null);
+
+  useEffect(() => {
+    if(isLoading || isMount) {
+      return;
+    }
+
+    if (error || !isLoading) {
+      alertRef.current?.startAnimation()
+    }
+
+  }, [isLoading, error])
 
   const handleOnPress = () => navigate(Screens.QUESTION_MODAL, { title: deckDetail.title, deckId: id });
 
@@ -44,30 +59,18 @@ const DeckDetail: FC<Props> = ({
     navigate(Screens.PLAYGROUND, { deckId: id, cardId: deckDetail.cards[0].id });
 
   const handleSortCards = () => dispatch(sortByRankCards(id));
+
   const handleShuffleCards = () => dispatch(shuffleCards(id));
-  const handlerRefreshSharedDeck = async () => {
-    if (deckDetail.sharedWithYou) {
-      try {
-        const response = await Api.getSharedDeckBySharedId(deckDetail.shareId);
-        const id = response.data.id;
-        const deck = {
-          owner: response.data.owner,
-          title: response.data.title,
-          cards: response.data.cards,
-          shareId: response.data.share_id,
-          sharedByYou: false,
-          sharedWithYou: true,
-        };
-        dispatch(saveSharedDeck(deck, id));
-      } catch (error) {
-        // FIXME add logger
-        return error;
-      }
+
+  const handlerRefreshSharedDeck = () => {
+    if (deckDetail.sharedWithYou || deckDetail.sharedByYou) {
+      dispatch(getDeckByShareId(deckDetail.shareId, id));
     }
   };
 
   return (
     <Container>
+      <GeneralAlert text={error ? NotificationMessages.ERROR : NotificationMessages.UPDATE} ref={alertRef} />
       <CloseButton onPress={goBack} />
       <View style={styles.addIcon}>
         <IconButton onPress={handleOnPress} iconName="plusCurve" />
@@ -94,9 +97,15 @@ const DeckDetail: FC<Props> = ({
                   sort={handleSortCards}
                 />
               ) : (
-                <NoCardsText />
+                <NoContentInfo text="card" style={styles.noContentInfo} iconName="prettyLady" />
               )}
-              <Cards cards={deckDetail.cards} deckId={id} />
+              <Cards
+                cards={deckDetail.cards}
+                deckId={id}
+                isOwner={deckDetail.isOwner}
+                handlerRefreshSharedDeck={handlerRefreshSharedDeck}
+                isLoading={isLoading}
+              />
             </Animated.View>
           </View>
         </SharedElement>
@@ -109,12 +118,18 @@ const DeckDetail: FC<Props> = ({
               sort={handleSortCards}
             />
           ) : (
-            <NoCardsText />
+            <NoContentInfo text="card" style={styles.noContentInfo} iconName="prettyLady" />
           )}
-          <Cards cards={deckDetail.cards} deckId={id} />
+          <Cards
+            cards={deckDetail.cards}
+            deckId={id}
+            isOwner={deckDetail.sharedByYou}
+            handlerRefreshSharedDeck={handlerRefreshSharedDeck}
+            isLoading={isLoading}
+          />
         </View>
       )}
-      {deckDetail.sharedWithYou ? (
+      {(deckDetail.sharedWithYou || deckDetail.sharedByYou) && !isLoading ? (
         <View style={styles.refresh}>
           <IconButton onPress={handlerRefreshSharedDeck} iconName="refresh" />
         </View>
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
   addIcon: {
     right: 10,
     position: 'absolute',
-    top: getPlatformDimension(20, 20, 5),
+    top: getPlatformDimension(20, 20, 50),
     zIndex: 9,
   },
   topView: {
@@ -156,8 +171,11 @@ const styles = StyleSheet.create({
   },
   refresh: {
     position: 'absolute',
-    bottom: 10,
+    bottom: getPlatformDimension(10, 10, 20),
     left: 10,
+  },
+  noContentInfo: {
+    marginTop: WINDOW_HEIGHT / 6,
   },
 });
 

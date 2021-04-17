@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import { isIOS, WINDOW_WIDTH } from '../../utils/device';
-import { Card } from '../../redux/reducer';
+import { Card } from '../../redux/decks/reducer';
 import useSwiper, { Direction } from '../../hooks/useSwiper';
 import ActionButtons from './ActionButtons';
 
@@ -18,7 +18,12 @@ interface Props {
 }
 
 const Swiper: FC<Props> = ({ cards, deckId, onSwipeRight, onSwipeLeft, renderNoMoreCards, renderCard }) => {
-  const [panResponder, position, currentCardIndex, forceSwipe] = useSwiper(cards, deckId, onSwipeRight, onSwipeLeft);
+  const [panResponder, position, currentCardIndex, forceSwipe] = useSwiper(
+    cards,
+    deckId,
+    onSwipeRight,
+    onSwipeLeft,
+  );
   const handleSwipeRight = () => forceSwipe(Direction.RIGHT, currentCardIndex);
   const handleSwipeLeft = () => forceSwipe(Direction.LEFT, currentCardIndex);
   const visibleCards = cards.slice(currentCardIndex, currentCardIndex + STACK_SIZE);
@@ -56,7 +61,10 @@ const Swiper: FC<Props> = ({ cards, deckId, onSwipeRight, onSwipeLeft, renderNoM
         return (
           <Animated.View
             key={item.id}
-            style={[styles.cardContainer, { left: i * 5, right: i * 5, width: ITEM_SIZE - i * 10, top: 5 * i, zIndex: 1 }]}>
+            style={[
+              styles.cardContainer,
+              { left: i * 5, right: i * 5, width: ITEM_SIZE - i * 10, top: 5 * i, zIndex: 1 },
+            ]}>
             {renderCard(item)}
           </Animated.View>
         );
@@ -67,7 +75,9 @@ const Swiper: FC<Props> = ({ cards, deckId, onSwipeRight, onSwipeLeft, renderNoM
   return (
     <View style={styles.container}>
       {renderCards()}
-      {currentCardIndex < cards.length ? <ActionButtons onPressLeft={handleSwipeLeft} onPressRight={handleSwipeRight} /> : null}
+      {currentCardIndex < cards.length ? (
+        <ActionButtons onPressLeft={handleSwipeLeft} onPressRight={handleSwipeRight} />
+      ) : null}
     </View>
   );
 };

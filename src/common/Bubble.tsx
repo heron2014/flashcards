@@ -1,11 +1,11 @@
 import React from 'react';
-import CustomText from './CustomText';
+import AppText from './AppText';
 import { StyleSheet, View } from 'react-native';
 import { theme } from '../utils';
 
 const Bubble = ({ text = 'shared' }) => (
   <View style={styles.container}>
-    <CustomText size="p">{text}</CustomText>
+    <AppText size="p">{text}</AppText>
   </View>
 );
 

@@ -1,17 +1,26 @@
 import React, { FC } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { captureException } from '@sentry/react-native';
 import LottieView from 'lottie-react-native';
-import { Container, PrimaryButton } from '../../common';
-import CustomText from '../../common/CustomText';
+import { Container, PrimaryButton, AppText } from '../../common';
 import { sendEmail } from '../../lib';
 import animations from '../../assets/animations';
 import { getPlatformDimension } from '../../utils/device';
+import * as Analytics from 'appcenter-analytics';
+import { analytics } from '../../utils';
+import { Logger } from '../../service/Logger';
 
 const Contact: FC = () => {
   const handleContact = () => {
-    sendEmail('czaplaanita@gmail.com', 'Hello from FlashCard App!').then(() => {
-      console.log('Our email successful provided to device mail ');
-    });
+    Analytics.trackEvent(analytics.contactUs).catch(null);
+    sendEmail('hello@brainsandbrawn.studio', 'Hello from FlashCard App!')
+      .then(() => {
+        Logger.sendMessage('Email is sent');
+      })
+      .catch((error) => {
+        Logger.sendLocalError(error, 'sendEmail');
+        captureException(error);
+      });
   };
 
   return (
@@ -20,12 +29,12 @@ const Contact: FC = () => {
         <LottieView autoPlay loop speed={1.5} source={animations.contact} />
       </View>
       <View style={styles.content}>
-        <CustomText centered size="h2">
+        <AppText centered size="h2">
           Any issues?
-        </CustomText>
-        <CustomText centered size="h2">
+        </AppText>
+        <AppText centered size="h2">
           Please contact us
-        </CustomText>
+        </AppText>
         <View style={styles.buttonContainer}>
           <PrimaryButton buttonText="Contact us" onPress={handleContact} />
         </View>

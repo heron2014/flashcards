@@ -1,0 +1,119 @@
+{
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "7AB7C84A",
+      "localizations" : [
+        {
+          "description" : "Get unlimited cards in your deck",
+          "displayName" : "1 Unlimited Deck",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "one_unlimited_deck",
+      "referenceName" : "1 Unlimited Deck",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "B0B71D6D",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "three_unlimited_decks",
+      "referenceName" : "3 Unlimited Decks",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "4262FB57",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "remove_ads",
+      "referenceName" : "Remove ads",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "99EDBE44",
+      "localizations" : [
+
+      ],
+      "name" : "MyFlashCards Subscription",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "8ADB58F7",
+          "introductoryOffer" : {
+            "internalID" : "A65BFEA2",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "monthly_subscription",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Montlhy subscription",
+          "subscriptionGroupID" : "99EDBE44",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "5.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "9201EAFC",
+          "introductoryOffer" : {
+            "internalID" : "89D4DCF4",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "yearly_subscription",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Yearly subscription",
+          "subscriptionGroupID" : "99EDBE44",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 1,
+    "minor" : 0
+  }
+}

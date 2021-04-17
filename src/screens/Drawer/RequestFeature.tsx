@@ -1,17 +1,23 @@
 import React, { FC } from 'react';
 import { View, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
-import { Container, PrimaryButton } from '../../common';
-import CustomText from '../../common/CustomText';
+import { captureException } from '@sentry/react-native';
+import { Container, PrimaryButton, AppText } from '../../common';
 import { sendEmail } from '../../lib';
 import animations from '../../assets/animations';
 import { getPlatformDimension } from '../../utils/device';
+import { Logger } from '../../service/Logger';
 
 const RequestFeature: FC = () => {
   const handleRequestFeature = () => {
-    sendEmail('czaplaanita@gmail.com', 'Request a feature!').then(() => {
-      console.log('Our email successful provided to device mail ');
-    });
+    sendEmail('hello@brainsandbrawn.studio', 'Request a feature!')
+      .then(() => {
+        Logger.sendMessage('Email is sent');
+      })
+      .catch((error) => {
+        Logger.sendLocalError(error, 'sendEmail');
+        captureException(error);
+      });
   };
 
   return (
@@ -20,12 +26,12 @@ const RequestFeature: FC = () => {
         <LottieView autoPlay loop speed={1.5} source={animations.growth} />
       </View>
       <View style={styles.content}>
-        <CustomText centered size="h2">
+        <AppText centered size="h2">
           Do you miss a feature?
-        </CustomText>
-        <CustomText centered size="h2">
+        </AppText>
+        <AppText centered size="h2">
           Let's create it together!
-        </CustomText>
+        </AppText>
         <View style={styles.buttonContainer}>
           <PrimaryButton buttonText="Request a feature" onPress={handleRequestFeature} />
         </View>

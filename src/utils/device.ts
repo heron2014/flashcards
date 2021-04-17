@@ -18,7 +18,9 @@ export const verticalScale = (size: number) => (longDimension / guidelineBaseHei
 export const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 export const moderateVerticalScale = (size: number, factor = 0.5) =>
   size + (verticalScale(size) - size) * factor;
+
 export const isIOS = Platform.OS === 'ios';
+export const isAndroid = Platform.OS === 'android';
 
 export const SPACING = 16;
 
@@ -30,7 +32,7 @@ export const HIT_SLOP = {
   backgroundColor: 'red',
 };
 
-function isIphoneWithNotch() {
+export function isIphoneWithNotch() {
   const dimen = Dimensions.get('window');
   return (
     Platform.OS === 'ios' &&

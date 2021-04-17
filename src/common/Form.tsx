@@ -1,26 +1,25 @@
 import React, { FC, useRef, useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, TouchableOpacity, View, ScrollView, Image } from 'react-native';
+import { Image, KeyboardAvoidingView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
-import { ImageLibraryOptions, launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import * as Analytics from 'appcenter-analytics';
+import {
+  ImageLibraryOptions,
+  ImagePickerResponse,
+  launchCamera,
+  launchImageLibrary,
+} from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
 import { getPlatformDimension, isIOS, WINDOW_HEIGHT } from '../utils/device';
 import assets from '../assets';
 import PrimaryButton from './PrimaryButton';
-import { theme } from '../utils';
+import { analytics, theme } from '../utils';
 import Api from '../api';
-
-const getPhoto = async (uri: string) => {
-  const fileType = uri.substr(uri.lastIndexOf('.') + 1);
-  const file = {
-    uri,
-    name: `image.${fileType}?date=${Date.now()}`,
-    type: `image/${fileType}`,
-  };
-  try {
-    return await Api.savePhoto(file);
-  } catch (e) {
-    console.log('e', e); // FIXME logger
-  }
-};
+import GeneralAlert, { GeneralAlertRef, NotificationMessages } from './GeneralAlert';
+import ProgressLoader from './ProgressLoader';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import IconButton from './IconButton';
+import { Screens } from '../navigation/types';
 
 interface Props {
   initialValue: string;
@@ -43,8 +42,14 @@ const imageOptions: ImageLibraryOptions = {
 };
 
 const Form: FC<Props> = ({ initialValue, onSubmit, placeholder }) => {
+  const navigation = useNavigation();
+  const { shop } = useSelector((state: RootState) => state);
   const [value, setValue] = useState(initialValue);
   const richText = useRef<RichEditor>(null);
+  const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const alertRef = useRef<GeneralAlertRef>(null);
+  const isPro = shop.monthlySubscription || shop.yearlySubscription;
 
   const handleKeyboard = () => {
     const editor = richText.current!;
@@ -61,28 +66,81 @@ const Form: FC<Props> = ({ initialValue, onSubmit, placeholder }) => {
     onSubmit(value);
   };
 
-  const handlePressAddImage = () => {
-    launchImageLibrary(imageOptions, async (res) => {
-      if (res.uri) {
-        const uri = res.uri;
-        const photo = await getPhoto(uri);
-        richText.current?.insertImage(photo);
+  const handleSetProgress = (progressEvent: ProgressEvent): void => {
+    const val = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+    setProgress(val);
+  };
+
+  const saveAndInsertPhoto = async (res: ImagePickerResponse) => {
+    if (res.uri) {
+      setIsLoading(true);
+      const uri = res.uri;
+      const fileType = uri.substr(uri.lastIndexOf('.') + 1);
+      const file = {
+        uri,
+        name: `image.${fileType}?date=${Date.now()}`,
+        type: `image/${fileType}`,
+      };
+      try {
+        const photo = await Api.savePhoto(file, handleSetProgress);
+        if (photo) {
+          setIsLoading(false);
+          richText.current?.insertImage(photo);
+        }
+      } catch (e) {
+        alertRef?.current?.startAnimation();
+        setIsLoading(false);
+      } finally {
+        setProgress(0);
       }
+    }
+  };
+  const handlePressAddImage = () => {
+    Analytics.trackEvent(analytics.addImageToCard).catch(null);
+    launchImageLibrary(imageOptions, async (res) => {
+      await saveAndInsertPhoto(res);
     });
   };
 
   const handleInsertImageFromCamera = () => {
     launchCamera(imageOptions, async (res) => {
-      if (res.uri) {
-        const uri = res.uri;
-        const photo = await getPhoto(uri);
-        richText.current?.insertImage(photo);
-      }
+      await saveAndInsertPhoto(res);
     });
   };
 
+  const handleRenderActions = () => {
+    const defaultActions = [
+      actions.insertImage,
+      actions.setBold,
+      actions.setItalic,
+      actions.insertBulletsList,
+      actions.insertOrderedList,
+      actions.undo,
+      actions.redo,
+    ];
+    const proActions = [
+      actions.setStrikethrough,
+      actions.setUnderline,
+      actions.blockquote,
+      actions.heading1,
+      actions.heading4,
+      actions.code,
+    ];
+    if (isPro) {
+      return [...defaultActions, 'insertImageFromCamera', ...proActions];
+    }
+    return defaultActions;
+  };
+
+  const handleGoToShop = () => navigation.navigate(Screens.UPGRADE_TO_PRO_MODAL);
+
   return (
     <>
+      <GeneralAlert
+        text={NotificationMessages.ERROR}
+        ref={alertRef}
+      />
+      {isLoading && <ProgressLoader progress={progress} />}
       <View style={styles.saveButton}>
         <PrimaryButton buttonText="Save" onPress={handleSubmit} />
       </View>
@@ -104,9 +162,12 @@ const Form: FC<Props> = ({ initialValue, onSubmit, placeholder }) => {
         />
       </ScrollView>
       <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={isIOS ? 0 : 25}>
-        <TouchableOpacity onPress={handleKeyboard}>
-          <Image source={assets.icons.keyboard} style={styles.keyboard} resizeMode="contain" />
-        </TouchableOpacity>
+        <View style={styles.row}>
+          <TouchableOpacity onPress={handleKeyboard}>
+            <Image source={assets.icons.keyboard} style={styles.keyboard} resizeMode="contain" />
+          </TouchableOpacity>
+          {!isPro && <IconButton onPress={handleGoToShop} iconName="basket" style={styles.basketIcon} />}
+        </View>
         <RichToolbar
           getEditor={() => richText.current!}
           iconTint="#282828"
@@ -114,22 +175,7 @@ const Form: FC<Props> = ({ initialValue, onSubmit, placeholder }) => {
           /* @ts-ignore FIXME at some point */
           insertImageFromCamera={handleInsertImageFromCamera}
           selectedIconTint="#2095F2"
-          actions={[
-            actions.insertImage,
-            'insertImageFromCamera',
-            actions.setBold,
-            actions.setItalic,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            actions.setStrikethrough,
-            actions.setUnderline,
-            actions.undo,
-            actions.redo,
-            actions.blockquote,
-            actions.heading1,
-            actions.heading4,
-            actions.code,
-          ]}
+          actions={handleRenderActions()}
           iconMap={{
             [actions.setStrikethrough]: () => (
               <Image source={assets.icons.strikethrough} resizeMode="contain" style={styles.toolbarIcon} />
@@ -174,9 +220,22 @@ const styles = StyleSheet.create({
     width: 60,
     height: 40,
   },
+  basket: {
+    width: 50,
+    height: 25,
+  },
   toolbarIcon: {
     width: 24,
     height: 24,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  basketIcon: {
+    backgroundColor: theme.colors.success,
+    marginRight: 10,
+    marginBottom: 10,
   },
 });
 

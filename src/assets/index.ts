@@ -59,12 +59,16 @@ export interface IAssets {
     boy: number;
     share: number;
     refresh: number;
+    codebar: number;
+    shopIsOpen: number;
+    shopOpen: number;
+    basket: number;
   };
 }
 
 const assets: IAssets = {
   icons: {
-    goBack: require('./images/backIcon.png'),
+    goBack: require('./images/goBack.png'),
     add: require('./images/add.png'),
     remove: require('./images/remove.png'),
     play: require('./images/play2.png'),
@@ -123,6 +127,10 @@ const assets: IAssets = {
     boy: require('./images/boy.png'),
     share: require('./images/share.png'),
     refresh: require('./images/refresh.png'),
+    codebar: require('./images/codebar.png'),
+    shopIsOpen: require('./images/shopIsOpen.png'),
+    shopOpen: require('./images/shopOpen.png'),
+    basket: require('./images/basket.png'),
   },
 };
 

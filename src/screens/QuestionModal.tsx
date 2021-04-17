@@ -1,16 +1,10 @@
 import React, { FC } from 'react';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList, Screens } from '../navigation/interface';
+import { AddQuestionScreenNavigationProp, AddQuestionScreenRouteProp, Screens } from '../navigation/types';
 import { CloseButton, Container, Form, Title } from 'common';
 import { selectCard, selectDeckItem } from '../redux/seclectors';
-import { Card } from '../redux/reducer';
-import { saveQuestion } from '../redux/actions';
-import Api from '../api';
-
-type AddQuestionScreenRouteProp = RouteProp<RootStackParamList, Screens.QUESTION_MODAL>;
-type AddQuestionScreenNavigationProp = StackNavigationProp<RootStackParamList, Screens.QUESTION_MODAL>;
+import { Card } from '../redux/decks/reducer';
+import { editAndSaveSharedDeck, saveQuestion } from '../redux/decks/actions';
 
 export interface Props {
   route: AddQuestionScreenRouteProp;
@@ -29,8 +23,9 @@ const QuestionModal: FC<Props> = ({ route: { params }, navigation: { navigate, g
     const id = cardId || Date.now().toString(); // Timestamp as id
     const isEdit = !!cardId;
     dispatch(saveQuestion(deckId, id, question, isEdit));
-    if (deckDetail.sharedByYou) {
-      await Api.editDeckByShareId(deckDetail, deckDetail.shareId);
+
+    if (deckDetail.sharedByYou || deckDetail.sharedWithYou) {
+      dispatch(editAndSaveSharedDeck(deckId, deckDetail.shareId));
     }
     return navigate(Screens.ANSWER_MODAL, { title, deckId, cardId: id });
   };

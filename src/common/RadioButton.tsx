@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, View, GestureResponderEvent } from 'react-native';
-import CustomText from './CustomText';
+import AppText from './AppText';
 
 interface Props {
   selected: boolean;
@@ -12,7 +12,7 @@ const RadioButton: FC<Props> = ({ selected, onPress, title }) => (
   <TouchableWithoutFeedback onPress={onPress}>
     <View style={styles.container}>
       <View style={styles.inner}>{selected ? <View style={styles.subContainer} /> : null}</View>
-      <CustomText size="body">{title}</CustomText>
+      <AppText size="body">{title}</AppText>
     </View>
   </TouchableWithoutFeedback>
 );

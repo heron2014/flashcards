@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   container: {
     left: 10,
     position: 'absolute',
-    top: getPlatformDimension(20, 20, 5), // Dont like that
+    top: getPlatformDimension(20, 20, 50), // Dont like this
     zIndex: 9,
   },
 });

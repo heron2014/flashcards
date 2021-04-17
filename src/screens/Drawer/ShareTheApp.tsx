@@ -1,31 +1,55 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { Container, PrimaryButton } from '../../common';
-import CustomText from '../../common/CustomText';
+import { useDispatch, useSelector } from 'react-redux';
+import * as Analytics from 'appcenter-analytics';
+import Share from 'react-native-share';
+import { Container, PrimaryButton, AppText } from '../../common';
 import assets from '../../assets';
 import { getPlatformDimension } from '../../utils/device';
+import { analytics } from '../../utils';
+import { sentInviteToFriends } from '../../redux/user/actions';
+import { RootState } from '../../redux/store';
+import { addFreeDeck } from '../../redux/decks/actions';
+import { shareOptions } from '../../config';
 
-const ShareTheApp: FC = () => (
-  <Container style={styles.container}>
-    <View style={styles.imageContainer}>
-      <Image source={assets.icons.faces} resizeMode="contain" />
-    </View>
-    <View style={{ flex: 1 }}>
-      <CustomText centered size="h2">
-        Enjoying the app?
-      </CustomText>
-      <CustomText centered size="h2">
-        Share it with your friends
-      </CustomText>
-      <CustomText centered size="h2">
-        & get extra free deck!
-      </CustomText>
-      <View style={styles.buttonContainer}>
-        <PrimaryButton buttonText="Share" onPress={() => null} />
+const ShareTheApp: FC = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state);
+  const handlePressInvite = () => {
+    Analytics.trackEvent(analytics.inviteFriends).catch(null);
+    return Share.open(shareOptions)
+      .then(() => {
+        if (!user.hasSentInvite) {
+          dispatch(sentInviteToFriends());
+          dispatch(addFreeDeck(1));
+        }
+      })
+      .catch(() => {
+        return null;
+      });
+  };
+  return (
+    <Container style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image source={assets.icons.faces} resizeMode="contain" />
       </View>
-    </View>
-  </Container>
-);
+      <View style={styles.content}>
+        <AppText centered size="h2">
+          Enjoying the app?
+        </AppText>
+        <AppText centered size="h2">
+          Share it with your friends
+        </AppText>
+        {!user.hasSentInvite && (
+          <AppText centered size="h2">
+            & get extra free deck!
+          </AppText>
+        )}
+        <PrimaryButton buttonText="Share" onPress={handlePressInvite} buttonStyle={styles.buttonContainer} />
+      </View>
+    </Container>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -33,6 +57,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignContent: 'center',
     backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
   },
   imageContainer: {
     flex: 1.6,

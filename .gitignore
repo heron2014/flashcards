@@ -29,6 +29,8 @@ build/
 local.properties
 *.iml
 
+android/java_*.hprof
+
 # Visual Studio Code
 #
 .vscode/
@@ -65,3 +67,4 @@ buck-out/
 .env
 # react-native-config codegen
 ios/tmp.xcconfig
+

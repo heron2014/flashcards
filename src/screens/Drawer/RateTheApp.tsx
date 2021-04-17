@@ -1,29 +1,39 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { Container, PrimaryButton } from '../../common';
-import CustomText from '../../common/CustomText';
+import { Container, PrimaryButton, AppText } from '../../common';
 import rateApp from '../../modules/rateApp';
 import assets from '../../assets';
 import { getPlatformDimension } from '../../utils/device';
+import { triggerRateApp } from '../../redux/user/actions';
+import { useDispatch } from 'react-redux';
 
-const RateTheApp: FC = () => (
-  <Container style={styles.container}>
-    <View style={styles.imageContainer}>
-      <Image source={assets.icons.review} resizeMode="contain" style={styles.image} />
-    </View>
-    <View style={{ flex: 1 }}>
-      <CustomText centered size="h2">
-        We'd love to hear from you.
-      </CustomText>
-      <CustomText centered size="h2">
-        Your review means A LOT to us.
-      </CustomText>
-      <View style={styles.buttonContainer}>
-        <PrimaryButton buttonText="Rate & Review" onPress={() => rateApp(false)} />
+const RateTheApp: FC = () => {
+  const dispatch = useDispatch();
+  return (
+    <Container style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image source={assets.icons.review} resizeMode="contain" style={styles.image} />
       </View>
-    </View>
-  </Container>
-);
+      <View style={{ flex: 1 }}>
+        <AppText centered size="h2">
+          We'd love to hear from you.
+        </AppText>
+        <AppText centered size="h2">
+          Your review means A LOT to us.
+        </AppText>
+        <View style={styles.buttonContainer}>
+          <PrimaryButton
+            buttonText="Rate & Review"
+            onPress={() => {
+              dispatch(triggerRateApp());
+              return rateApp(false);
+            }}
+          />
+        </View>
+      </View>
+    </Container>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

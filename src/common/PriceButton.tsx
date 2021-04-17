@@ -1,28 +1,31 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { theme } from '../utils';
-import CustomText from './CustomText';
+import AppText from './AppText';
 
 interface Props {
   onPress: () => void;
-  buttonStyle?: ViewStyle;
+  style?: ViewStyle;
   primaryText: string;
   disabled?: boolean;
+  isSecondaryText?: boolean;
 }
 
-const PriceButton = ({ onPress, buttonStyle, primaryText, disabled = false }: Props) => (
+const PriceButton = ({ onPress, style, primaryText, disabled = false, isSecondaryText = true }: Props) => (
   <TouchableOpacity
     disabled={disabled}
     activeOpacity={0.6}
-    style={[styles.button, { ...buttonStyle }]}
+    style={[styles.button, { ...style }]}
     onPress={onPress}>
     <>
-      <CustomText centered size="body">
+      <AppText centered size="body">
         {primaryText}
-      </CustomText>
-      <CustomText centered size="p">
-        Try free for 3 days
-      </CustomText>
+      </AppText>
+      {isSecondaryText && (
+        <AppText centered size="p">
+          Try free for 3 days
+        </AppText>
+      )}
     </>
   </TouchableOpacity>
 );

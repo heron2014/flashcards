@@ -1,7 +1,6 @@
-import { Icon } from '../../../common';
-import { StyleSheet, View } from 'react-native';
-import CustomText from '../../../common/CustomText';
 import React, { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Icon, AppText } from '../../../common';
 
 interface Props {
   label: string;
@@ -13,10 +12,10 @@ const Item: FC<Props> = ({ icon, label, text }) => (
   <View style={styles.container}>
     <Icon name={icon} />
     <View style={styles.inner}>
-      <CustomText size="h3" textStyle={styles.text}>
+      <AppText size="h2" textStyle={styles.text}>
         {label}
-      </CustomText>
-      <CustomText size="p">{text}</CustomText>
+      </AppText>
+      <AppText size="p">{text}</AppText>
     </View>
   </View>
 );

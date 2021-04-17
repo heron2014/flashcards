@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
-import CustomText from '../../../common/CustomText';
 import { StyleSheet, View } from 'react-native';
 import { getPlatformDimension, isSmallDevice, SPACING } from '../../../utils/device';
 import { theme } from '../../../utils';
-import { Icon } from '../../../common';
+import { Icon, AppText } from '../../../common';
 
 interface Props {
   total: number;
@@ -15,29 +14,29 @@ const TopContent: FC<Props> = ({ total, badAnswersTotal, goodAnswersTotal }) => 
   <View style={styles.row}>
     <View style={styles.outerBox}>
       <Icon name="happyFace" bgColor={theme.colors.good} imgStyle={styles.iconImage} style={styles.icon} />
-      <CustomText size="h1" textStyle={{ color: theme.colors.border }}>
+      <AppText size="h1" textStyle={{ color: theme.colors.border }}>
         {goodAnswersTotal}
-      </CustomText>
-      <CustomText size="body" textStyle={styles.bodyText}>
-        good answers
-      </CustomText>
+      </AppText>
+      <AppText size="body" textStyle={styles.bodyText}>
+        {goodAnswersTotal === 1 ? 'correct answer' : 'correct answers'}
+      </AppText>
     </View>
     <View style={{ alignItems: 'center' }}>
-      <CustomText size="hero" textStyle={styles.heroText}>
+      <AppText size="hero" textStyle={styles.heroText}>
         {total}
-      </CustomText>
-      <CustomText size="body" textStyle={{ color: theme.colors.border }}>
-        cards
-      </CustomText>
+      </AppText>
+      <AppText size="body" textStyle={{ color: theme.colors.border }}>
+        {total === 1 ? 'card' : 'cards'}
+      </AppText>
     </View>
     <View style={styles.outerBox}>
       <Icon name="notSureFace" bgColor={theme.colors.bad} imgStyle={styles.iconImage} style={styles.icon} />
-      <CustomText size="h1" textStyle={{ color: theme.colors.border }}>
+      <AppText size="h1" textStyle={{ color: theme.colors.border }}>
         {badAnswersTotal}
-      </CustomText>
-      <CustomText size="body" textStyle={styles.bodyText}>
-        bad answers
-      </CustomText>
+      </AppText>
+      <AppText size="body" textStyle={styles.bodyText}>
+        {`incorrect answer${badAnswersTotal === 1 ? '' : 's'}`}
+      </AppText>
     </View>
   </View>
 );

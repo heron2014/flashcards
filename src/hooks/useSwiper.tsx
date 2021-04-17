@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Animated, LayoutAnimation, PanResponder, UIManager } from 'react-native';
 import { WINDOW_WIDTH } from '../utils/device';
-import { Card } from '../redux/reducer';
+import { Card } from '../redux/decks/reducer';
 
 const SWIPE_THRESHOLD = 0.25 * WINDOW_WIDTH;
 const SWIPE_OUT_DURATION = 250;
@@ -13,7 +13,12 @@ export enum Direction {
   RIGHT = 'right',
 }
 
-const useSwiper = (cards: Card[], deckId: string, onSwipeRight: (item: Card) => void, onSwipeLeft: (item: Card) => void) => {
+const useSwiper = (
+  cards: Card[],
+  deckId: string,
+  onSwipeRight: (item: Card) => void,
+  onSwipeLeft: (item: Card) => void,
+) => {
   const position = useRef<any>(new Animated.ValueXY()).current; // FIXME
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const incrementIndex = useCallback(() => setCurrentCardIndex((index) => index + 1), []);

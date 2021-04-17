@@ -1,0 +1,6 @@
+{
+  "react-native": {
+    "admob_android_app_id": "AD_MOB_ANDROID_APP_ID",
+    "admob_ios_app_id": "AD_MOB_IOS_APP_ID"
+  }
+}

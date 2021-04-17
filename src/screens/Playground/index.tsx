@@ -1,25 +1,25 @@
 import React, { FC, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useDispatch, useSelector } from 'react-redux';
 import Swiper from 'react-native-deck-swiper';
 import * as R from 'ramda';
-import { RootStackParamList, Screens } from '../../navigation/interface';
+import { PlaygroundScreenNavigationProp, PlaygroundScreenRouteProp, Screens } from '../../navigation/types';
 import { CloseButton, Container, Title } from '../../common';
 import { selectDeckItem } from '../../redux/seclectors';
 import CardItem from './Card';
-import { Card } from '../../redux/reducer';
-import { getPlatformDimension, isSmallDevice } from '../../utils/device';
-import { scoreCard } from '../../redux/actions';
-import { SCORES } from '../../redux/interface';
+import { Card } from '../../redux/decks/reducer';
+import { getPlatformDimension, isIOS, isSmallDevice } from '../../utils/device';
+import { scoreCard } from '../../redux/decks/actions';
+import { SCORES } from '../../redux/decks/interface';
 import ActionButtons from './ActionButtons';
 import NoMoreCards from './NoMoreCards';
 import { theme } from '../../utils';
 import PrimaryButton from '../../common/PrimaryButton';
-
-type PlaygroundScreenRouteProp = RouteProp<RootStackParamList, Screens.PLAYGROUND>;
-type PlaygroundScreenNavigationProp = StackNavigationProp<RootStackParamList, Screens.PLAYGROUND>;
+import { RootState } from '../../redux/store';
+import { triggerRateApp } from '../../redux/user/actions';
+import rateApp from '../../modules/rateApp';
+import { useInterstitialAd } from '../../service/useInterstitialAd';
+import { AdUnitIds } from '../../service/config';
 
 export interface Props {
   route: PlaygroundScreenRouteProp;
@@ -28,15 +28,20 @@ export interface Props {
 
 const STACK_SIZE = 3;
 
+const AD_ID = isIOS ? AdUnitIds.IOS_PRE_PLAYGROUND_PROMO : AdUnitIds.ANDROID_PRE_PLAYGROUND_PROMO;
+
 const Playground: FC<Props> = ({ route: { params }, navigation: { goBack, navigate } }) => {
+  const swiperRef = useRef<any>(null); // FIXME
   const dispatch = useDispatch();
   const [index, setIndex] = useState(0);
   const [noMoreCards, setNoMoreCards] = useState(false);
-  const swiperRef = useRef<any>(null); // FIXME
   const deckDetail = useSelector(selectDeckItem(params.deckId));
+  const { ratedAppAt } = useSelector((state: RootState) => state.user);
   const card = R.find(R.propEq('id', params.cardId), deckDetail.cards);
   const restOfCards = R.reject(R.propEq('id', params.cardId), deckDetail.cards);
   const reOrderedCards = card ? [card, ...restOfCards] : deckDetail.cards; // First card is the one which has been clicked from deck detail
+
+  useInterstitialAd(AD_ID);
 
   const onSwiped = () => {
     setIndex((index + 1) % deckDetail.cards.length);
@@ -71,6 +76,13 @@ const Playground: FC<Props> = ({ route: { params }, navigation: { goBack, naviga
 
   const handleSwipeRight = (currentIndex: number) => scoreGoodAnswer(currentIndex);
   const handleSwipeLeft = (currentIndex: number) => scoreBadAnswer(currentIndex);
+  const handleGoBack = () => {
+    if (deckDetail.cards.length && !ratedAppAt) {
+      dispatch(triggerRateApp());
+      rateApp(true);
+    }
+    goBack();
+  };
 
   const renderCards = () => {
     if (noMoreCards) {
@@ -104,11 +116,13 @@ const Playground: FC<Props> = ({ route: { params }, navigation: { goBack, naviga
   };
   return (
     <Container style={styles.container}>
-      <CloseButton onPress={goBack} />
+      <CloseButton onPress={handleGoBack} />
       <Title title={deckDetail.title} />
-      <View style={styles.shareButtonContainer}>
-        <PrimaryButton buttonText="Share" onPress={handleShareDeck} />
-      </View>
+      {deckDetail.isOwner && (
+        <View style={styles.shareButtonContainer}>
+          <PrimaryButton buttonText="Share" onPress={handleShareDeck} />
+        </View>
+      )}
       <View style={styles.swiperContainer}>
         {renderCards()}
         {!noMoreCards ? (

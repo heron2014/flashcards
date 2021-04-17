@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteDeck } from '../redux/actions';
+import { deleteDeck } from '../redux/decks/actions';
 import { selectDecks } from '../redux/seclectors';
 import { NativeAlert } from '../common';
 

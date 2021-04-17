@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CustomText from './CustomText';
+import AppText from './AppText';
 import CloseButton from './CloseButton';
 import IconButton from './IconButton';
 import { IconButtonProps } from './IconButton';
@@ -24,9 +24,9 @@ const Header = ({ title, left, right }: HeaderProps) => {
   return (
     <View style={{ ...styles.container, marginTop: insets.top }}>
       <CloseButton onPress={left.onPress} />
-      <CustomText size="h1" centered>
+      <AppText size="h1" centered>
         {title}
-      </CustomText>
+      </AppText>
       {right ? <IconButton onPress={right.onPress} iconName={right.icon} /> : <View style={{ width: 44 }} />}
     </View>
   );

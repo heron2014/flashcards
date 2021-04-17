@@ -1,16 +1,10 @@
 import React, { FC } from 'react';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList, Screens } from '../navigation/interface';
+import { AddAnswerScreenNavigationProp, AddAnswerScreenRouteProp } from '../navigation/types';
 import { CloseButton, Container, Form, Title } from 'common';
 import { selectCard, selectDeckItem } from '../redux/seclectors';
-import { Card } from '../redux/reducer';
-import { saveAnswer } from '../redux/actions';
-import Api from '../api';
-
-type AddAnswerScreenRouteProp = RouteProp<RootStackParamList, Screens.ANSWER_MODAL>;
-type AddAnswerScreenNavigationProp = StackNavigationProp<RootStackParamList, Screens.ANSWER_MODAL>;
+import { Card } from '../redux/decks/reducer';
+import { editAndSaveSharedDeck, saveAnswer } from '../redux/decks/actions';
 
 export interface Props {
   route: AddAnswerScreenRouteProp;
@@ -25,8 +19,8 @@ const AnswerModal: FC<Props> = ({ route: { params }, navigation }) => {
 
   const handleSave = async (answer: Card['answer']) => {
     dispatch(saveAnswer(deckId, cardId, answer));
-    if (deckDetail.sharedByYou) {
-      await Api.editDeckByShareId(deckDetail, deckDetail.shareId);
+    if (deckDetail.sharedByYou || deckDetail.sharedWithYou || deckDetail.owner) {
+      dispatch(editAndSaveSharedDeck(deckId, deckDetail.shareId));
     }
     navigation.popToTop();
   };

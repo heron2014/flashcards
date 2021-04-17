@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
 import { View, StyleSheet, ScrollView, Keyboard, Image } from 'react-native';
-import { Container, DismissKeyboard, Input, PrimaryButton, RadioButton } from '../../common';
-import CustomText from '../../common/CustomText';
+import { Container, DismissKeyboard, Input, PrimaryButton, RadioButton, AppText } from '../../common';
 import { SPACING } from '../../utils/device';
 import { theme } from '../../utils';
 import Api from '../../api';
@@ -65,13 +64,13 @@ const ImproveTheApp: FC = () => {
             contentContainerStyle={styles.contentContainer}
             indicatorStyle="white"
             scrollEventThrottle={16}>
-            <CustomText size="h2">How can we improve?</CustomText>
+            <AppText size="h2">How can we improve?</AppText>
             <Input value={improve} onChangeText={(text) => onChange(text, 'improve')} multiline />
-            <CustomText size="h2">What do you already like?</CustomText>
+            <AppText size="h2">What do you already like?</AppText>
             <Input value={like} onChangeText={(text) => onChange(text, 'like')} multiline />
-            <CustomText size="h2">What other apps/resources do you use, and why?</CustomText>
+            <AppText size="h2">What other apps/resources do you use, and why?</AppText>
             <Input value={otherApps} onChangeText={(text) => onChange(text, 'otherApps')} multiline />
-            <CustomText size="h2">How did you find out about our app?</CustomText>
+            <AppText size="h2">How did you find out about our app?</AppText>
             {heardAbout.map((item, index) => (
               <RadioButton
                 key={item.title}

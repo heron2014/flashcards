@@ -1,60 +1,78 @@
 import { GestureResponderEvent, StyleSheet, TouchableOpacity, View } from 'react-native';
-import CustomText from '../../../common/CustomText';
-import { HtmlParser, Icon } from '../../../common';
+import { HtmlParser, Icon, AppText } from '../../../common';
 import React, { FC } from 'react';
-import { Card } from '../../../redux/reducer';
+import { Card } from '../../../redux/decks/reducer';
 import { getPlatformDimension, isSmallDevice } from '../../../utils/device';
 import { theme } from '../../../utils';
+import IconButton from '../../../common/IconButton';
 
 interface Props {
   onPress: (event: GestureResponderEvent) => void;
-  onLongPress: (event: GestureResponderEvent) => void;
+  onTrashPress: (event: GestureResponderEvent) => void;
   card: Pick<Card, 'question' | 'answer'>;
+  isOwner: boolean;
 }
 
-const CardItem: FC<Props> = ({ onPress, onLongPress, card }) => (
-  <TouchableOpacity onLongPress={onLongPress} onPress={onPress}>
-    <View style={styles.content}>
-      <View style={styles.top}>
-        <CustomText size="p" textStyle={styles.label}>
-          Question:
-        </CustomText>
-        <View style={{ marginVertical: 8 }}>
-          <HtmlParser isSliced text={`${card.question}`} />
-        </View>
+const CardItem: FC<Props> = ({ onPress, onTrashPress, card, isOwner }) => (
+  <View style={styles.container}>
+    {isOwner && (
+      <View style={styles.trashIconContainer}>
+        <IconButton
+          onPress={onTrashPress}
+          iconName="trash"
+          imgStyle={styles.transparentIconImg}
+          style={styles.trashIcon}
+          hasShadow={false}
+        />
       </View>
-      {card.answer.length ? (
-        <View style={styles.emptyView} />
-      ) : (
-        <View style={styles.bottom}>
-          <Icon
-            name="question"
-            bgColor={theme.colors.warning}
-            imgStyle={styles.iconImg}
-            style={styles.icon}
-          />
-          <CustomText size="p" textStyle={{ color: '#646464' }}>
-            missing answer
-          </CustomText>
+    )}
+    <TouchableOpacity onPress={onPress} style={styles.content}>
+      <View style={styles.innerContent}>
+        <View style={styles.top}>
+          <AppText size="p" textStyle={styles.label}>
+            Question:
+          </AppText>
+          <View style={{ marginVertical: 8 }}>
+            <HtmlParser isSliced text={`${card.question}`} />
+          </View>
         </View>
-      )}
-    </View>
-  </TouchableOpacity>
+        {!card.answer.length && (
+          <View style={styles.bottom}>
+            <Icon
+              name="question"
+              bgColor={theme.colors.warning}
+              imgStyle={styles.iconImg}
+              style={styles.icon}
+            />
+            <AppText size="p" textStyle={{ color: '#646464' }}>
+              Missing answer
+            </AppText>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  </View>
 );
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   content: {
-    width: isSmallDevice() ? 130 : getPlatformDimension(150, 150, 170),
     paddingHorizontal: 5,
     paddingVertical: 10,
-    justifyContent: 'space-between',
-    flexDirection: 'column',
+    height: isSmallDevice() ? 150 : getPlatformDimension(155, 170, 190),
+    flex: 1,
   },
   top: {
-    justifyContent: 'center',
+    flex: 1,
+    overflow: 'hidden',
+  },
+  innerContent: {
+    flex: 1,
   },
   bottom: {
-    marginTop: 10,
+    marginTop: 5,
     alignItems: 'center',
     flexDirection: 'row',
   },
@@ -70,7 +88,22 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.p,
   },
-  emptyView: {
+  trashIconContainer: {
+    zIndex: 2,
+    position: 'absolute',
+    flexDirection: 'row',
+    top: -3,
+    right: -8,
+    alignSelf: 'flex-end',
+  },
+  transparentIconImg: {
+    width: 18,
+    height: 18,
+  },
+  trashIcon: {
+    borderWidth: 0.5,
+    borderColor: '#222',
+    width: 30,
     height: 30,
   },
 });

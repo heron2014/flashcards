@@ -1,5 +1,5 @@
 // Credit goes to https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-import { Card } from '../redux/reducer';
+import { Card } from '../redux/decks/reducer';
 
 // FIXME: add generics types
 interface Datum {

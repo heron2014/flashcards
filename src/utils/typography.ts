@@ -1,4 +1,5 @@
 import { isIOS, scaleFont } from './device';
+import { TextStyle } from 'react-native';
 
 // FONT FAMILY
 const FONT_FAMILY_REGULAR = isIOS ? 'Avenir-Medium' : 'Roboto';
@@ -11,7 +12,9 @@ const FONT_WEIGHT_BOLD = 'bold';
 
 // FONT SIZE
 const FONT_SIZE_30 = scaleFont(30);
+const FONT_SIZE_19 = scaleFont(19);
 const FONT_SIZE_18 = scaleFont(18);
+const FONT_SIZE_17 = scaleFont(17);
 const FONT_SIZE_16 = scaleFont(16);
 const FONT_SIZE_14 = scaleFont(14);
 const FONT_SIZE_12 = scaleFont(12);
@@ -32,7 +35,9 @@ export const FONT_BOLD = {
   fontWeight: FONT_WEIGHT_BOLD,
 };
 
-const typography = {
+type Typography = 'hero' | 'header' | 'h1' | 'h2' | 'h3' | 'body' | 'p' | 'button' | 'drawerLabel';
+
+const typography: Record<Typography, TextStyle> = {
   hero: {
     fontSize: FONT_SIZE_30,
     fontFamily: FONT_FAMILY_HERO,
@@ -47,17 +52,17 @@ const typography = {
   h1: {
     fontFamily: FONT_FAMILY_BOLD,
     fontWeight: FONT_WEIGHT_BOLD,
-    fontSize: FONT_SIZE_18,
+    fontSize: FONT_SIZE_19,
   },
   h2: {
     fontFamily: FONT_FAMILY_HERO,
     fontWeight: FONT_WEIGHT_REGULAR,
-    fontSize: FONT_SIZE_16,
+    fontSize: FONT_SIZE_18,
   },
   h3: {
     fontFamily: FONT_FAMILY_REGULAR,
     fontWeight: FONT_WEIGHT_REGULAR,
-    fontSize: FONT_SIZE_14,
+    fontSize: FONT_SIZE_16,
   },
   body: {
     fontSize: FONT_SIZE_16,
